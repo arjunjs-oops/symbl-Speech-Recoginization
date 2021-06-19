@@ -80,15 +80,20 @@ const getConnection = async() => {
         return
     }
 }
+let connection;
 io.once("connection", async(socket) => {
+
     sdk.init({
             // APP_ID and APP_SECRET come from the Symbl Platform: https://platform.symbl.ai
             appId: APP_ID,
             appSecret: APP_SECRET,
             basePath: 'https://api.symbl.ai'
         })
-        .then(() =>
-            console.log('SDK Initialized.')
+        .then(() => {
+                console.log('SDK Initialized.');
+                connection = await getConnection()
+            }
+
         )
         .catch(err => console.error('Error in initialization.', err));
 
@@ -101,7 +106,6 @@ io.once("connection", async(socket) => {
 
 
     socket.on('send_pcm', async(data) => {
-        const connection = await getConnection()
         if (connection) {
             var myReadableStreamBuffer = new streamBuffers.ReadableStreamBuffer({
                 frequency: 10, // in milliseconds.
@@ -129,16 +133,6 @@ io.once("connection", async(socket) => {
         ack({ filename: "Stoppeed Connection" })
     })
 })
-
-// Convert byte array to Float32Array
-const toF32Array = (buf) => {
-    const buffer = new ArrayBuffer(buf.length)
-    const view = new Uint8Array(buffer)
-    for (var i = 0; i < buf.length; i++) {
-        view[i] = buf[i]
-    }
-    return new Float32Array(buffer)
-}
 
 
 
