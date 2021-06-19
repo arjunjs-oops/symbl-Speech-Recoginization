@@ -114,8 +114,8 @@ function stopRecording() {
     localstream.getTracks().forEach((track) => {
         track.stop()
     })
-    ws.emit('stop', '', (res) => {
-        console.log(`Audio data is saved as ${res.filename}`)
+    ws.emit('end', 'Stopped', (response) => {
+        console.log(response.status);
     })
     ws.disconnect();
 

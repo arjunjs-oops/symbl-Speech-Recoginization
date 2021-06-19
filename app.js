@@ -82,26 +82,39 @@ const getConnection = async() => {
 }
 let connection;
 io.once("connection", async(socket) => {
+    try {
 
-    sdk.init({
+        await sdk.init({
             // APP_ID and APP_SECRET come from the Symbl Platform: https://platform.symbl.ai
             appId: APP_ID,
             appSecret: APP_SECRET,
             basePath: 'https://api.symbl.ai'
         })
-        .then(() => {
-                console.log('SDK Initialized.');
-                connection = await getConnection()
-            }
+        console.log('SDK Initialized.');
+        const conn = await getConnection()
+        connection = conn
+        console.log(conn)
 
-        )
-        .catch(err => console.error('Error in initialization.', err));
+
+    } catch (err) {
+        console.error('Error in initialization.', err);
+
+
+    }
+
 
     let sampleRate = 48000
     socket.on('start', async(data) => {
         sampleRate = data.sampleRate
         console.log(`Sample Rate: ${sampleRate}`)
 
+    })
+    socket.on('end', async(data, callback) => {
+        console.log(data)
+        await connection.stop()
+        callback({
+            status: "Ended"
+        });
     })
 
 
